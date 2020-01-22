@@ -3,3 +3,9 @@
 ################################################################################
 
 /packages
+/.idea/.idea.RefactorThis
+/.vs
+/bin
+/Backup
+/Properties
+/obj

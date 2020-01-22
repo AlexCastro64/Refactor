@@ -1,51 +1,46 @@
-﻿using System.Data.SqlClient;
+﻿using System;
+using System.Data.SqlClient;
 using Microsoft.Data.Sqlite;
 
 namespace RefactorThis.Models
 {
+    // Very basic Database connection.
     public class Database
     {
 
-        private const string ConnectionString = "Data Source=App_Data/products.db";
-        private var Connection;
-        private var Command;
-        
+        private const string ConnectionString = "Data Source=C:/Users/Alex/Downloads/RefactorThis_Dev/RefactorThis/App_Data/products.db";
+        private SqliteConnection Connection { get; set; }
+        public SqliteCommand Command { get; set; }
+        public SqliteDataReader reader { get; private set; }
 
+        // Start the connection in constructor
         public Database()
         {
-            Connection = NewConnection();
-            Connection.open();
-        }
-
-        public SqliteConnection NewConnection()
-        {
-            return new SqliteConnection(ConnectionString);
+            Connection = new SqliteConnection(ConnectionString);
+            Connection.Open();
+            // I had command in here because there was some SQL injection prevention I was trying to get to work which ended up failing so I reverted it.
+            Command = Connection.CreateCommand();
         }
 
 
-   
-        public Query(string sql)
+        // prevent duplication code
+        public void Query(string sql)
         {
-            
             try
             {
-                
-                Command = conn.CreateCommand();
                 Command.CommandText = sql;
-                var result = cmd.ExecuteReader();
+                reader = Command.ExecuteReader();
             }
-            catch (MySqlException e)
+            catch (Exception e)
             {
-                return e.message;
-
+                Console.WriteLine(e.Message);
             }
-
-            return result;
         }
 
+        // Close connection on destructor.
         ~Database()
         {
-            Connection.close();
+            Connection.Close();
         }
 
 

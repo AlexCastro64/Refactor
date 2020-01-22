@@ -8,25 +8,30 @@ namespace RefactorThis.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
+
         [HttpGet]
         public Products Get()
         {
-            return "Hello World";
             return new Products();
         }
 
-        [HttpGet("{name}")]
-        public Products Get(string name)
+        // Couldn't Get this to work
+        [HttpGet]
+        public Products SearchByName(string name)
         {
+            Console.WriteLine(name);
             return new Products(name);
         }
 
+        
         [HttpGet("{id}")]
         public Product Get(Guid id)
         {
             var product = new Product(id);
             if (product.IsNew)
+            {
                 throw new Exception();
+            }
 
             return product;
         }
@@ -49,7 +54,9 @@ namespace RefactorThis.Controllers
             };
 
             if (!orig.IsNew)
+            {
                 orig.Save();
+            }
         }
 
         [HttpDelete("{id}")]
@@ -59,6 +66,51 @@ namespace RefactorThis.Controllers
             product.Delete();
         }
 
+        [HttpGet("{productId}/options")]
+        public ProductOptions GetOptions(Guid productId)
+        {
+            return new ProductOptions(productId);
+        }
 
+        [HttpGet("{productId}/options/{id}")]
+        public ProductOption GetOption(Guid productId, Guid id)
+        {
+            var option = new ProductOption(id);
+            if (option.IsNew)
+            {
+                throw new Exception();
+            }
+
+            return option;
+        }
+
+        [HttpPost("{productId}/options")]
+        public void CreateOption(Guid productId, ProductOption option)
+        {
+            option.ProductId = productId;
+            option.Save();
+        }
+
+        [HttpPut("{productId}/options/{id}")]
+        public void UpdateOption(Guid id, ProductOption option)
+        {
+            var orig = new ProductOption(id)
+            {
+                Name        = option.Name,
+                Description = option.Description
+            };
+
+            if (!orig.IsNew)
+            {
+                orig.Save();
+            }
+        }
+
+        [HttpDelete("{productId}/options/{id}")]
+        public void DeleteOption(Guid id)
+        {
+            var opt = new ProductOption(id);
+            opt.Delete();
+        }
     }
 }

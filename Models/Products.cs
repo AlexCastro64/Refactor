@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace RefactorThis.Models
-{
+{   
+
     public class Products
     {
         public List<Product> Items { get; private set; }
@@ -18,15 +19,16 @@ namespace RefactorThis.Models
             LoadProducts($"where lower(name) like '%{name.ToLower()}%'");
         }
 
+        // Load Products.
         private void LoadProducts(string where)
         {
             Items = new List<Product>();
-            var database = Database();
+            var database = new Database();
             var sql = $"select id from Products {where}";
-            var rdr = database.query(sql);
-            while (rdr.Read())
+            database.Query(sql);
+            while (database.reader.Read())
             {
-                var id = Guid.Parse(rdr.GetString(0));
+                var id = Guid.Parse(database.reader.GetString(0));
                 Items.Add(new Product(id));
             }
         }

@@ -1,4 +1,12 @@
-# refactor-this
+#A letter from Alex
+
+This was an overall great challenge for me not having done any C# programming. As you may be able to tell, I possibly missed a few basics, but it was fun to see how I could manage a new language. 
+
+Completed all endpoints apart from number 2, I couldnt work out how to pass the GET variable, possibly with more time I could figure it out.
+
+Thanks for this opportunity, I would appreciate any feedback :)
+
+## refactor-this
 The attached project is a poorly written products API in C#.
 
 Please evaluate and refactor areas where you think can be improved. 

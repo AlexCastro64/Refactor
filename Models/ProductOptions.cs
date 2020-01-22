@@ -20,16 +20,16 @@ namespace RefactorThis.Models
             LoadProductOptions($"where productid = '{productId}' collate nocase");
         }
 
-
+        // Load the product options
         private void LoadProductOptions(string where)
         {
             Items = new List<ProductOption>();
-            var database = Database();
-
-            var rdr = database.query($"select id from productoptions {where}");
-            while (rdr.Read())
+            var database = new Database();
+            var sql = $"select id from productoptions {where}";
+            database.Query(sql);
+            while (database.reader.Read())
             {
-                var id = Guid.Parse(rdr.GetString(0));
+                var id = Guid.Parse(database.reader.GetString(0));
                 Items.Add(new ProductOption(id));
             }
         }

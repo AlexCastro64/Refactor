@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Sqlite;
+using Newtonsoft.Json;
 
 namespace RefactorThis.Models
 {
@@ -29,41 +31,79 @@ namespace RefactorThis.Models
         public Product(Guid id)
         {
             IsNew = true;
-            var database = Database();
+            var database = new Database();
             var sql = $"select * from Products where id = '{id}' collate nocase";
 
-            var rdr = database.query(sql);
-            if (!rdr.Read())
-                return;
-
-            IsNew           = false;
-            Id              = Guid.Parse(rdr["Id"].ToString());
-            Name            = rdr["Name"].ToString();
-            Description     = (DBNull.Value == rdr["Description"]) ? null : rdr["Description"].ToString();
-            Price           = decimal.Parse(rdr["Price"].ToString());
-            DeliveryPrice   = decimal.Parse(rdr["DeliveryPrice"].ToString());
-        }
-
-        public void Save()
-        {
-            var database = Database();
-            var sql = IsNew
-                ? $"insert into Products (id, name, description, price, deliveryprice) values ('{Id}', '{Name}', '{Description}', {Price}, {DeliveryPrice})"
-                : $"update Products set name = '{Name}', description = '{Description}', price = {Price}, deliveryprice = {DeliveryPrice} where id = '{Id}' collate nocase";
-            database.query(sql);
-        }
-
-        public void Delete()
-        {
-            foreach (var option in new ProductOptions(Id).Items)
+            database.Query(sql);
+            if (!database.reader.Read())
             {
-                option.Delete();
+                return;
             }
 
-            var database = Database();
-            var sql = $"delete from Products where id = '{Id}' collate nocase";
-            database.query(sql);
+            IsNew           = false;
+            Id              = Guid.Parse(database.reader["Id"].ToString());
+            Name            = database.reader["Name"].ToString();
+            Description     = (DBNull.Value == database.reader["Description"]) ? null : database.reader["Description"].ToString();
+            Price           = decimal.Parse(database.reader["Price"].ToString());
+            DeliveryPrice   = decimal.Parse(database.reader["DeliveryPrice"].ToString());
         }
-        
+
+        public bool Save()
+        {
+            var database = new Database();
+            string sql;
+
+            if (IsNew)
+            {
+                // Insert New Product
+                sql =
+                    $"INSERT INTO Products (id, name, description, price, deliveryprice) " +
+                    $"values ('{Id}', '{Name}', '{Description}', '{Price}', '{DeliveryPrice}')";
+            } else
+            {
+                // Update Product
+                sql = $"UPDATE Products " +
+                      $"SET name = '{Name}', description = '{Description}', price = {Price}, deliveryprice = {DeliveryPrice} WHERE id = '{Id}' collate nocase";
+            }
+
+            // Attempted to prevent SQL injection here with no solution
+            try
+            {
+                database.Query(sql);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool Delete()
+        {
+
+            try
+            {
+                // Remove Options attached to Product before deleting
+                foreach (var option in new ProductOptions(Id).Items)
+                {
+                    option.Delete();
+                }
+
+                var database = new Database();
+                var sql = $"delete from Products where id = '{Id}' collate nocase";
+                database.Query(sql);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+
+            return true;
+        }
+
+
     }
 }
