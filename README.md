@@ -1,4 +1,4 @@
-#A letter from Alex
+# A letter from Alex
 
 This was an overall great challenge for me not having done any C# programming. As you may be able to tell, I possibly missed a few basics, but it was fun to see how I could manage a new language. 
 
